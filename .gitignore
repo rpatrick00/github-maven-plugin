@@ -1,0 +1,16 @@
+*~
+*#
+.#*
+**/*.iml
+**/*.bak
+**/.idea
+target
+**/.classpath
+**/.project
+**/velocity.log*
+**/.settings
+*.log
+release.properties
+**/pom.xml.releaseBackup
+**/.DS_Store
+
