@@ -59,8 +59,7 @@ import static io.rhpatrick.mojo.github.MavenUtils.logWarn;
  * This class implements the github:create-release goal.  It supports creating a GitHub repository release
  * and uploading artifacts to it.
  */
-@Mojo(name = "create-release", defaultPhase = LifecyclePhase.DEPLOY, aggregator = true,
-    requiresDependencyResolution = ResolutionScope.RUNTIME)
+@Mojo(name = "create-release", defaultPhase = LifecyclePhase.DEPLOY)
 public class CreateReleaseMojo extends AbstractMojo implements Contextualizable {
     private static final Map<String, String> DEFAULT_MIME_TYPE_MAPPINGS = new LinkedHashMap<>();
     static {
