@@ -19,6 +19,8 @@ package io.rhpatrick.mojo.github;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,10 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.FileSet;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
@@ -48,6 +50,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
 import static io.rhpatrick.mojo.github.MavenUtils.getMojoExecutionException;
+import static io.rhpatrick.mojo.github.MavenUtils.logDebug;
 import static io.rhpatrick.mojo.github.MavenUtils.logError;
 import static io.rhpatrick.mojo.github.MavenUtils.logInfo;
 import static io.rhpatrick.mojo.github.MavenUtils.logWarn;
@@ -56,7 +59,8 @@ import static io.rhpatrick.mojo.github.MavenUtils.logWarn;
  * This class implements the github:create-release goal.  It supports creating a GitHub repository release
  * and uploading artifacts to it.
  */
-@Mojo(name = "create-release", defaultPhase = LifecyclePhase.DEPLOY)
+@Mojo(name = "create-release", defaultPhase = LifecyclePhase.DEPLOY, aggregator = true,
+    requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class CreateReleaseMojo extends AbstractMojo implements Contextualizable {
     private static final Map<String, String> DEFAULT_MIME_TYPE_MAPPINGS = new LinkedHashMap<>();
     static {
@@ -99,6 +103,12 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
      */
     @Parameter(property = "github.release.description")
     private String description;
+
+    /**
+     * The text file containing the description (aka. body) of theGitHub repository release.
+     */
+    @Parameter(property = "github.release,descriptionFile")
+    private File descriptionFile;
 
     /**
      * The git tag name on which to base the release.  This tag name must already exist in the GitHub repository.
@@ -239,16 +249,23 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
         }
         if (release == null) {
             logInfo(getLog(), "Creating new release {0} for repository {1}", name, repository.getName());
-            logInfo(getLog(), "Creating GHReleaseBuilder [ tag: {0}, name: {1}, prerelease: {2}, draft: {3}]",
+            logDebug(getLog(), "Creating GHReleaseBuilder [ tag: {0}, name: {1}, prerelease: {2}, draft: {3}]",
                     tag, name, preRelease, draft);
             GHReleaseBuilder releaseBuilder = repository.createRelease(tag)
                     .name(name)
                     .prerelease(preRelease)
                     .draft(draft);
             if (StringUtils.isNotEmpty(description)) {
-                logInfo(getLog(), "Adding body to GHReleaseBuilder: {0}", description);
+                logDebug(getLog(), "Adding body to GHReleaseBuilder: {0}", description);
                 releaseBuilder.body(description);
+            } else if (descriptionFile != null) {
+                String descriptionFileContents = getFileContents(descriptionFile);
+                if (StringUtils.isNotEmpty(descriptionFileContents))
+                logDebug(getLog(), "Add body from file {0} to GHReleaseBuilder: {1}",
+                         descriptionFile.getAbsolutePath(), descriptionFileContents);
+                releaseBuilder.body(descriptionFileContents);
             }
+
             if (StringUtils.isNotEmpty(commmitish)) {
                 logInfo(getLog(), "Adding commitish to GHReleaseBuilder: {0}", commmitish);
                 releaseBuilder.commitish(commmitish);
@@ -353,6 +370,8 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
         if (StringUtils.isEmpty(fileName)) {
             throw getMojoExecutionException("Asset file name was empty");
         } else if (fileName.lastIndexOf('.') == -1) {
+            throw getMojoExecutionException("File {0} has no extension so it cannot be mapped to a MIME type",
+                                            fileName);
         }
 
         String[] fileNameComponents = fileName.split("\\.");
@@ -376,5 +395,28 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
             throw getMojoExecutionException("Missing MIME type mapping for file extension {0}", extension);
         }
         return mimeType;
+    }
+
+    protected static String getFileContents(File file) throws MojoExecutionException {
+        if (file == null) {
+            throw getMojoExecutionException("getFileContents() requires a file that is not null");
+        } else if (!file.exists()) {
+            throw getMojoExecutionException("getFileContents() requires an existing file");
+        } else if (file.isDirectory()) {
+            throw getMojoExecutionException("getFileContents() requires a file that is not a directory");
+        }
+
+        Path filePath = file.toPath();
+        StringBuilder contents = new StringBuilder();
+        try {
+            Files.lines(filePath).forEachOrdered(line -> {
+                contents.append(line);
+                contents.append('\n');
+            });
+        } catch (IOException ex) {
+            throw getMojoExecutionException(ex, "Reading the contents of file {0} failed: {1}",
+                                            file.getAbsolutePath(), ex.getMessage());
+        }
+        return contents.toString();
     }
 }
