@@ -106,7 +106,7 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
     /**
      * The text file containing the description (aka. body) of theGitHub repository release.
      */
-    @Parameter(property = "github.release,descriptionFile")
+    @Parameter(property = "github.release.descriptionFile")
     private File descriptionFile;
 
     /**
