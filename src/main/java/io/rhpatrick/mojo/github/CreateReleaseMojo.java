@@ -1,7 +1,7 @@
 /*
  * CreateReleaseMojo.java - This file contains the implementation for the create-release goal.
  *
- * Copyright 2021 Robert Patrick <rhpatrick@gmail.com>
+ * Copyright 2021, 2022, Robert Patrick <rhpatrick@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,6 +211,7 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
         repositoryId = MavenUtils.getRepositoryIdFromScmConnection(repositoryId);
         GHRepository repository;
         try {
+            logDebug(getLog(), "getting repository {0}", repositoryId);
             repository = github.getRepository(repositoryId);
         } catch (IOException ex) {
             throw getMojoExecutionException(ex, "Failed to get repository {0} from GitHub: {1}",

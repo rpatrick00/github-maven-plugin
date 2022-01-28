@@ -9,6 +9,22 @@ This plugin requires the use of a GitHub token with the necessary permissions to
       <passphrase>{kRBjmPgdyiHERnNNRp3tWCk2zPWMXBKJQVHxpVcW4T/FCp/L2h29+TRmVlgXh9gAX83hnhS302zAoVSdUTc/FA==}</passphrase>
     </server>
 ```
+If you need to configure a proxy server, we leverage the Maven `settings.xml` file's `<proxies>` stanza to get the `host`, `port`, and `nonProxyHosts` and use those to set the Java System Properties `https.proxyHost`, `https.proxyPort`, and `http.nonProxyHosts`, respectively.  Make sure that the proxy is marked active!
+
+```xml
+  <proxies>
+    <proxy>
+      <active>true</active>
+      <id>mycompany</id>
+      <protocol>http</protocol>
+      <host>proxy.mycompany.com</host>
+      <port>80</port>
+      <nonProxyHosts>*.us.mycompany.com|*.internal.mycompany.com</nonProxyHosts>
+    </proxy>
+  </proxies>
+```
+
+The other alternative is to set these Java System Properties directly on the command line when Maven to 
 
 To use the plugin, you will need to configure it in your `pom.xml`:
 

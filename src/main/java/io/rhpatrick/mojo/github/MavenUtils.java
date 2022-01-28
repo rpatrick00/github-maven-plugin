@@ -1,7 +1,7 @@
 /*
  * MavenUtils.java - This file contains helper methods related to Maven.
  *
- * Copyright 2021 Robert Patrick <rhpatrick@gmail.com>
+ * Copyright 2021, 2022, Robert Patrick <rhpatrick@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package io.rhpatrick.mojo.github;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
@@ -263,5 +264,28 @@ public final class MavenUtils {
             throw getMojoExecutionException(ex, "Decrypting server entry {0} failed: {1}", serverId, ex.getMessage());
         }
         return server;
+    }
+
+    /**
+     * Get the active proxy from settings.xml.
+     *
+     * @param settings the Maven settings object to use
+     * @param logger   the Maven logger to use
+     * @return the Maven Proxy object for the active proxy or null, if no proxy exists.
+     * @throws MojoExecutionException if the settings argument was not valid
+     */
+    public static Proxy getProxyFromSettings(final Settings settings, Log logger) throws MojoExecutionException {
+        if (settings == null) {
+            throw new MojoExecutionException("getServerFromSettings() requires that the Maven settings not be null");
+        }
+
+        Proxy proxy = settings.getActiveProxy();
+        if (proxy != null) {
+            logDebug(logger, "Found active proxy for protocol {0} using {1}:{2}",
+                proxy.getProtocol(), proxy.getHost(), proxy.getPort());
+        } else {
+            logDebug(logger, "No active proxy found");
+        }
+        return proxy;
     }
 }

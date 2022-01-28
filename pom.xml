@@ -1,7 +1,7 @@
 <!--
     pom.xml - The Maven POM file used to build the github-maven-plugin.
 
-    Copyright 2021 Robert Patrick <rhpatrick@gmail.com>
+    Copyright 2021, 2022, Robert Patrick <rhpatrick@gmail.com>
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>org.kohsuke</groupId>
 			<artifactId>github-api</artifactId>
-			<version>1.123</version>
+			<version>1.301</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

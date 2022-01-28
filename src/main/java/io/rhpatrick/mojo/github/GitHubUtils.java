@@ -1,7 +1,7 @@
 /*
  * GitHubUtils.java - This file contains helper methods related to GitHub.
  *
- * Copyright 2021 Robert Patrick <rhpatrick@gmail.com>
+ * Copyright 2021, 2022 Robert Patrick <rhpatrick@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.PlexusContainer;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.PagedIterable;
 
 import static io.rhpatrick.mojo.github.MavenUtils.getMojoExecutionException;
@@ -82,6 +84,7 @@ public final class GitHubUtils {
                 throw new MojoExecutionException("connect() requires the server ID not to be null");
             }
             Server server = MavenUtils.getServerFromSettings(container, settings, serverId, logger);
+            initializeProxySettings(settings, logger);
 
             authToken = server.getPassphrase();
             if (StringUtils.isEmpty(authToken)) {
@@ -89,7 +92,7 @@ public final class GitHubUtils {
             }
             logDebug(logger, "Auth token found in settings.xml for server {0}", serverId);
         }
-        return GitHub.connectUsingOAuth(authToken);
+        return new GitHubBuilder().withOAuthToken(authToken).build();
     }
 
     /**
@@ -127,5 +130,21 @@ public final class GitHubUtils {
             logInfo(logger, "Repository {0} has no releases", repository.getName());
         }
         return result;
+    }
+
+    private static void initializeProxySettings(Settings settings, Log logger) throws MojoExecutionException {
+        Proxy proxy = MavenUtils.getProxyFromSettings(settings, logger);
+        if (proxy != null) {
+            String proxyHost = proxy.getHost();
+            int proxyPort = proxy.getPort();
+            String nonProxyHosts = proxy.getNonProxyHosts();
+            logDebug(logger, "Setting Java System Properties from proxy server {0}: proxyHost = {1}, " +
+                "proxyPort = {2}, nonProxyHosts = {3}", proxy.getId(), proxyHost, proxyPort, nonProxyHosts);
+            System.setProperty("https.proxyHost", proxy.getHost());
+            System.setProperty("https.proxyPort", Integer.toString(proxy.getPort()));
+            if (nonProxyHosts != null && nonProxyHosts.length() > 0) {
+                System.setProperty("http.nonProxyHosts", nonProxyHosts);
+            }
+        }
     }
 }
