@@ -58,5 +58,5 @@ The configuration above depends on several defaults to note:
 The plugin has many options that have reasonable default values but can be overridden as needed.  To see the details, use Maven's `help` plugin to see the details:
 
 ```bash
-mvn help:describe -Dplugin=io.rhpatrick.mojo:github-maven-plugin:0.6 -Dgoal=create-release -Ddetail
+mvn help:describe -Dplugin=io.rhpatrick.mojo:github-maven-plugin:0.7 -Dgoal=create-release -Ddetail
 ```
