@@ -259,11 +259,15 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
                 logDebug(getLog(), "Adding body to GHReleaseBuilder: {0}", description);
                 releaseBuilder.body(description);
             } else if (descriptionFile != null) {
-                String descriptionFileContents = getFileContents(descriptionFile);
-                if (StringUtils.isNotEmpty(descriptionFileContents))
-                logDebug(getLog(), "Add body from file {0} to GHReleaseBuilder: {1}",
-                         descriptionFile.getAbsolutePath(), descriptionFileContents);
-                releaseBuilder.body(descriptionFileContents);
+                if (descriptionFile.exists()) {
+                    String descriptionFileContents = getFileContents(descriptionFile);
+                    if (StringUtils.isNotEmpty(descriptionFileContents))
+                        logDebug(getLog(), "Add body from file {0} to GHReleaseBuilder: {1}",
+                                 descriptionFile.getAbsolutePath(), descriptionFileContents);
+                    releaseBuilder.body(descriptionFileContents);
+                } else {
+                    logWarn(getLog(), "descriptionFile set to {0} but the file does not exist so skipping...");
+                }
             }
 
             if (StringUtils.isNotEmpty(commmitish)) {
