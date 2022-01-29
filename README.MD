@@ -32,7 +32,7 @@ To use the plugin, you will need to configure it in your `pom.xml`:
 <plugin>
     <groupId>io.rhpatrick.mojo</groupId>
     <artifactId>github-maven-plugin</artifactId>
-    <version>0.6</version>
+    <version>0.7</version>
     <configuration>
         <tag>v${project.version}</tag>
         <name>The name of the release</name>
