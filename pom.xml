@@ -20,7 +20,7 @@
 	<groupId>io.rhpatrick.mojo</groupId>
 	<artifactId>github-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.7</version>
 	<name>github-maven-plugin</name>
 	<description>Maven plugin to interact with GitHub via its APIs</description>
 	<url>https://github.com/rpatrick00/github-maven-plugin</url>
@@ -46,7 +46,7 @@
 		<url>https://github.com/rpatrick00/github-maven-plugin</url>
 		<connection>scm:git:git@github.com:rpatrick00/github-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:rpatrick00/github-maven-plugin.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>github-maven-plugin-0.7</tag>
 	</scm>
 
 	<distributionManagement>
