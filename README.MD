@@ -24,7 +24,7 @@ If you need to configure a proxy server, we leverage the Maven `settings.xml` fi
   </proxies>
 ```
 
-The other alternative is to set these Java System Properties directly on the command line when Maven to 
+The other alternative is to set these Java System Properties directly on the command line when running Maven.
 
 To use the plugin, you will need to configure it in your `pom.xml`:
 
