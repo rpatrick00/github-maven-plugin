@@ -266,7 +266,8 @@ public class CreateReleaseMojo extends AbstractMojo implements Contextualizable 
                                  descriptionFile.getAbsolutePath(), descriptionFileContents);
                     releaseBuilder.body(descriptionFileContents);
                 } else {
-                    logWarn(getLog(), "descriptionFile set to {0} but the file does not exist so skipping...");
+                    logWarn(getLog(), "descriptionFile set to {0} but the file does not exist so skipping...",
+                            descriptionFile.getAbsolutePath());
                 }
             }
 
